@@ -1,5 +1,5 @@
-import express from "express"
-import fetch from "node-fetch"
+const express = require("express")
+const fetch = require("node-fetch")
 
 const app = express()
 app.use(express.json())
@@ -15,7 +15,7 @@ app.post("/gerar-pix", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": Bearer ${MP_ACCESS_TOKEN}`
+        "Authorization": Bearer ${MP_ACCESS_TOKEN}
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
@@ -77,6 +77,8 @@ app.post("/webhook-mercadopago", async (req, res) => {
   res.sendStatus(200)
 })
 
-app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000")
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () => {
+  console.log("Servidor rodando na porta", PORT)
 })
