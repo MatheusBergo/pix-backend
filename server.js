@@ -59,7 +59,7 @@ app.post("/webhook", async (req, res) => {
     }
 
     const response = await fetch(
-      https://api.mercadopago.com/v1/payments/${paymentId},
+      `https://api.mercadopago.com/v1/payments/${paymentId}`,
       {
         method: "GET",
         headers: {
