@@ -36,6 +36,7 @@ app.post("/gerar-pix", async (req, res) => {
     })
 
   } catch (err) {
+    console.error(err)
     res.status(500).json({ erro: err.message })
   }
 })
@@ -76,4 +77,6 @@ app.post("/webhook-mercadopago", async (req, res) => {
   res.sendStatus(200)
 })
 
-app.listen(3000)
+app.listen(3000, () => {
+  console.log("Servidor rodando na porta 3000")
+})
