@@ -7,78 +7,94 @@ app.use(express.json())
 const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN
 const BOTPRESS_TOKEN = process.env.BOTPRESS_TOKEN
 
+// ===============================
+// GERAR PIX
+// ===============================
 app.post("/gerar-pix", async (req, res) => {
   try {
-    const { valor, nomeCliente, conversationId } = req.body
+    const { valor, nomeCliente } = req.body
 
     const response = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${MP_ACCESS_TOKEN}`
+        "Authorization": Bearer ${MP_ACCESS_TOKEN}
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
-        description: "Pedido",
+        description: "Pedido via WhatsApp",
         payment_method_id: "pix",
         payer: {
           email: "cliente@email.com",
-          first_name: nomeCliente
-        },
-        external_reference: conversationId
+          first_name: nomeCliente || "Cliente"
+        }
       })
     })
 
     const data = await response.json()
 
     res.json({
-      codigoPix: data.point_of_interaction.transaction_data.qr_code
+      id: data.id,
+      qr_code: data.point_of_interaction.transaction_data.qr_code,
+      qr_code_base64: data.point_of_interaction.transaction_data.qr_code_base64
     })
 
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ erro: err.message })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Erro ao gerar PIX" })
   }
 })
 
-app.post("/webhook-mercadopago", async (req, res) => {
-  const paymentId = req.body.data?.id
+// ===============================
+// WEBHOOK MERCADO PAGO
+// ===============================
+app.post("/webhook", async (req, res) => {
+  try {
+    const paymentId = req.body.data.id
 
-  if (paymentId) {
-    const paymentResponse = await fetch(
+    const response = await fetch(
       https://api.mercadopago.com/v1/payments/${paymentId},
       {
+        method: "GET",
         headers: {
-          "Authorization": `Bearer ${MP_ACCESS_TOKEN}`
+          "Authorization": Bearer ${MP_ACCESS_TOKEN}
         }
       }
     )
 
-    const payment = await paymentResponse.json()
+    const payment = await response.json()
 
     if (payment.status === "approved") {
-      await fetch("https://api.botpress.cloud/v1/messages", {
+      console.log("Pagamento aprovado!")
+
+      // Aqui você pode chamar o Botpress futuramente
+      // exemplo:
+      /*
+      await fetch("https://api.botpress.cloud/v1/chat/messages", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${BOTPRESS_TOKEN}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": Bearer ${BOTPRESS_TOKEN}
         },
         body: JSON.stringify({
-          conversationId: payment.external_reference,
-          type: "text",
+          conversationId: "ID_DA_CONVERSA",
           payload: {
-            text: "✅ Pix recebido com sucesso!\n\nObrigado pela confiança 🙏\nSeu pedido já está sendo preparado 🍕🔥"
+            type: "text",
+            text: "✅ Pix recebido! Seu pedido já está sendo preparado."
           }
         })
       })
+      */
     }
-  }
 
-  res.sendStatus(200)
+    res.sendStatus(200)
+
+  } catch (error) {
+    console.error(error)
+    res.sendStatus(500)
+  }
 })
 
-const PORT = process.env.PORT || 3000
-
-app.listen(PORT, () => {
-  console.log("Servidor rodando na porta", PORT)
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Servidor rodando 🚀")
 })
