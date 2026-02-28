@@ -12,7 +12,7 @@ const BOTPRESS_TOKEN = process.env.BOTPRESS_TOKEN
 // ===============================
 app.post("/gerar-pix", async (req, res) => {
   try {
-    const { valor, nomeCliente } = req.body
+    const { valor, nomeCliente, conversationId } = req.body
 
     const response = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
@@ -27,7 +27,8 @@ app.post("/gerar-pix", async (req, res) => {
         payer: {
           email: "cliente@email.com",
           first_name: nomeCliente || "Cliente"
-        }
+        },
+        external_reference: conversationId
       })
     })
 
@@ -45,12 +46,17 @@ app.post("/gerar-pix", async (req, res) => {
   }
 })
 
+
 // ===============================
 // WEBHOOK MERCADO PAGO
 // ===============================
 app.post("/webhook", async (req, res) => {
   try {
-    const paymentId = req.body.data.id
+    const paymentId = req.body.data?.id
+
+    if (!paymentId) {
+      return res.sendStatus(200)
+    }
 
     const response = await fetch(
       https://api.mercadopago.com/v1/payments/${paymentId},
@@ -67,9 +73,6 @@ app.post("/webhook", async (req, res) => {
     if (payment.status === "approved") {
       console.log("Pagamento aprovado!")
 
-      // Aqui você pode chamar o Botpress futuramente
-      // exemplo:
-      /*
       await fetch("https://api.botpress.cloud/v1/chat/messages", {
         method: "POST",
         headers: {
@@ -77,14 +80,13 @@ app.post("/webhook", async (req, res) => {
           "Authorization": Bearer ${BOTPRESS_TOKEN}
         },
         body: JSON.stringify({
-          conversationId: "ID_DA_CONVERSA",
+          conversationId: payment.external_reference,
           payload: {
             type: "text",
-            text: "✅ Pix recebido! Seu pedido já está sendo preparado."
+            text: "✅ Pix recebido com sucesso!\n\nObrigado pela confiança 🙏\nSeu pedido já está sendo preparado 🍕🔥"
           }
         })
       })
-      */
     }
 
     res.sendStatus(200)
@@ -95,6 +97,12 @@ app.post("/webhook", async (req, res) => {
   }
 })
 
-app.listen(process.env.PORT || 3000, () => {
+
+// ===============================
+// START SERVER
+// ===============================
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () => {
   console.log("Servidor rodando 🚀")
 })
