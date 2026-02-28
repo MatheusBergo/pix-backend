@@ -97,10 +97,6 @@ app.post("/webhook", async (req, res) => {
   }
 })
 
-
-// ===============================
-// START SERVER
-// ===============================
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
