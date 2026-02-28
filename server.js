@@ -18,7 +18,7 @@ app.post("/gerar-pix", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": Bearer ${MP_ACCESS_TOKEN}
+        "Authorization": `Bearer ${MP_ACCESS_TOKEN}`
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
@@ -63,7 +63,7 @@ app.post("/webhook", async (req, res) => {
       {
         method: "GET",
         headers: {
-          "Authorization": Bearer ${MP_ACCESS_TOKEN}
+          "Authorization": `Bearer ${MP_ACCESS_TOKEN}`
         }
       }
     )
@@ -77,7 +77,7 @@ app.post("/webhook", async (req, res) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": Bearer ${BOTPRESS_TOKEN}
+          "Authorization": `Bearer ${BOTPRESS_TOKEN}`
         },
         body: JSON.stringify({
           conversationId: payment.external_reference,
@@ -97,6 +97,10 @@ app.post("/webhook", async (req, res) => {
   }
 })
 
+
+// ===============================
+// START SERVER
+// ===============================
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
