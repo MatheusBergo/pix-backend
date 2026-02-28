@@ -15,7 +15,7 @@ app.post("/gerar-pix", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": Bearer ${MP_ACCESS_TOKEN}
+        "Authorization": Bearer ${MP_ACCESS_TOKEN}`
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
