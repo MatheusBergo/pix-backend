@@ -15,7 +15,7 @@ app.post("/gerar-pix", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": Bearer ${MP_ACCESS_TOKEN}`
+        `"Authorization": Bearer ${MP_ACCESS_TOKEN}`
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
@@ -49,7 +49,7 @@ app.post("/webhook-mercadopago", async (req, res) => {
       https://api.mercadopago.com/v1/payments/${paymentId},
       {
         headers: {
-          "Authorization": Bearer ${MP_ACCESS_TOKEN}`
+          `"Authorization": Bearer ${MP_ACCESS_TOKEN}`
         }
       }
     )
@@ -60,7 +60,7 @@ app.post("/webhook-mercadopago", async (req, res) => {
       await fetch("https://api.botpress.cloud/v1/messages", {
         method: "POST",
         headers: {
-          "Authorization": Bearer ${BOTPRESS_TOKEN}`,
+          `"Authorization": Bearer ${BOTPRESS_TOKEN}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
