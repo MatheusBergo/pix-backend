@@ -8,7 +8,7 @@ const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN
 const BOTPRESS_TOKEN = process.env.BOTPRESS_TOKEN
 
 // ===============================
-// ROTA DE TESTE (ver se backend está vivo)
+// ROTA TESTE
 // ===============================
 app.get("/teste", (req, res) => {
   res.json({ status: "backend funcionando" })
@@ -22,15 +22,14 @@ app.post("/gerar-pix", async (req, res) => {
     const { valor, nomeCliente, conversationId } = req.body
 
     console.log("===== NOVA REQUISIÇÃO PIX =====")
-    console.log("Valor recebido:", valor)
-    console.log("Nome cliente:", nomeCliente)
-    console.log("Conversation ID:", conversationId)
+    console.log("Valor:", valor)
+    console.log("Cliente:", nomeCliente)
 
     const response = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": Bearer ${MP_ACCESS_TOKEN}
+        "Authorization": "Bearer " + MP_ACCESS_TOKEN
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
@@ -46,11 +45,9 @@ app.post("/gerar-pix", async (req, res) => {
 
     const data = await response.json()
 
-    console.log("Resposta Mercado Pago:")
-    console.log(data)
+    console.log("Resposta Mercado Pago:", data)
 
     if (!response.ok) {
-      console.log("Erro retornado pelo Mercado Pago")
       return res.status(400).json(data)
     }
 
@@ -61,30 +58,28 @@ app.post("/gerar-pix", async (req, res) => {
     })
 
   } catch (error) {
-    console.error("ERRO AO GERAR PIX:")
-    console.error(error)
+    console.error("ERRO AO GERAR PIX:", error)
     res.status(500).json({ error: error.message })
   }
 })
-
 
 // ===============================
 // WEBHOOK MERCADO PAGO
 // ===============================
 app.post("/webhook", async (req, res) => {
   try {
-    const paymentId = req.body.data?.id
+    const paymentId = req.body.data ? req.body.data.id : null
 
     if (!paymentId) {
       return res.sendStatus(200)
     }
 
     const response = await fetch(
-      https://api.mercadopago.com/v1/payments/${paymentId},
+      "https://api.mercadopago.com/v1/payments/" + paymentId,
       {
         method: "GET",
         headers: {
-          "Authorization": Bearer ${MP_ACCESS_TOKEN}
+          "Authorization": "Bearer " + MP_ACCESS_TOKEN
         }
       }
     )
@@ -100,7 +95,7 @@ app.post("/webhook", async (req, res) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": Bearer ${BOTPRESS_TOKEN}
+          "Authorization": "Bearer " + BOTPRESS_TOKEN
         },
         body: JSON.stringify({
           conversationId: payment.external_reference,
@@ -115,12 +110,10 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(200)
 
   } catch (error) {
-    console.error("Erro no webhook:")
-    console.error(error)
+    console.error("Erro webhook:", error)
     res.sendStatus(500)
   }
 })
-
 
 // ===============================
 // START SERVER
