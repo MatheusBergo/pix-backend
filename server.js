@@ -8,17 +8,29 @@ const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN
 const BOTPRESS_TOKEN = process.env.BOTPRESS_TOKEN
 
 // ===============================
+// ROTA DE TESTE (ver se backend está vivo)
+// ===============================
+app.get("/teste", (req, res) => {
+  res.json({ status: "backend funcionando" })
+})
+
+// ===============================
 // GERAR PIX
 // ===============================
 app.post("/gerar-pix", async (req, res) => {
   try {
     const { valor, nomeCliente, conversationId } = req.body
 
+    console.log("===== NOVA REQUISIÇÃO PIX =====")
+    console.log("Valor recebido:", valor)
+    console.log("Nome cliente:", nomeCliente)
+    console.log("Conversation ID:", conversationId)
+
     const response = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${MP_ACCESS_TOKEN}`
+        "Authorization": Bearer ${MP_ACCESS_TOKEN}
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
@@ -34,6 +46,14 @@ app.post("/gerar-pix", async (req, res) => {
 
     const data = await response.json()
 
+    console.log("Resposta Mercado Pago:")
+    console.log(data)
+
+    if (!response.ok) {
+      console.log("Erro retornado pelo Mercado Pago")
+      return res.status(400).json(data)
+    }
+
     res.json({
       id: data.id,
       qr_code: data.point_of_interaction.transaction_data.qr_code,
@@ -41,8 +61,9 @@ app.post("/gerar-pix", async (req, res) => {
     })
 
   } catch (error) {
+    console.error("ERRO AO GERAR PIX:")
     console.error(error)
-    res.status(500).json({ error: "Erro ao gerar PIX" })
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -59,16 +80,18 @@ app.post("/webhook", async (req, res) => {
     }
 
     const response = await fetch(
-      `https://api.mercadopago.com/v1/payments/${paymentId}`,
+      https://api.mercadopago.com/v1/payments/${paymentId},
       {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${MP_ACCESS_TOKEN}`
+          "Authorization": Bearer ${MP_ACCESS_TOKEN}
         }
       }
     )
 
     const payment = await response.json()
+
+    console.log("Webhook recebido:", payment.status)
 
     if (payment.status === "approved") {
       console.log("Pagamento aprovado!")
@@ -77,7 +100,7 @@ app.post("/webhook", async (req, res) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${BOTPRESS_TOKEN}`
+          "Authorization": Bearer ${BOTPRESS_TOKEN}
         },
         body: JSON.stringify({
           conversationId: payment.external_reference,
@@ -92,6 +115,7 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(200)
 
   } catch (error) {
+    console.error("Erro no webhook:")
     console.error(error)
     res.sendStatus(500)
   }
