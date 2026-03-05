@@ -32,7 +32,7 @@ app.post("/gerar-pix", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": Bearer ${MP_ACCESS_TOKEN}
+        "Authorization": "Bearer " + MP_ACCESS_TOKEN
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
@@ -48,7 +48,7 @@ app.post("/gerar-pix", async (req, res) => {
 
     const data = await response.json()
 
-    console.log("Resposta MercadoPago:")
+    console.log("Resposta Mercado Pago:")
     console.log(data)
 
     if (!data.point_of_interaction) {
@@ -94,11 +94,11 @@ app.post("/webhook", async (req, res) => {
     }
 
     const response = await fetch(
-      https://api.mercadopago.com/v1/payments/${paymentId},
+      "https://api.mercadopago.com/v1/payments/" + paymentId,
       {
         method: "GET",
         headers: {
-          "Authorization": Bearer ${MP_ACCESS_TOKEN}
+          "Authorization": "Bearer " + MP_ACCESS_TOKEN
         }
       }
     )
@@ -113,7 +113,7 @@ app.post("/webhook", async (req, res) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": Bearer ${BOTPRESS_TOKEN}
+          "Authorization": "Bearer " + BOTPRESS_TOKEN
         },
         body: JSON.stringify({
           conversationId: payment.external_reference,
