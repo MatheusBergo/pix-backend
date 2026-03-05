@@ -1,5 +1,6 @@
 const express = require("express")
 const fetch = require("node-fetch")
+const crypto = require("crypto")
 
 const app = express()
 app.use(express.json())
@@ -28,11 +29,14 @@ app.post("/gerar-pix", async (req, res) => {
 
     const { valor, nomeCliente, conversationId } = req.body
 
+    const idempotencyKey = crypto.randomUUID()
+
     const response = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + MP_ACCESS_TOKEN
+        "Authorization": "Bearer " + MP_ACCESS_TOKEN,
+        "X-Idempotency-Key": idempotencyKey
       },
       body: JSON.stringify({
         transaction_amount: Number(valor),
