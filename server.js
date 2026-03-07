@@ -43,7 +43,7 @@ app.post("/gerar-pix", async (req, res) => {
         description: "Pedido via WhatsApp",
         payment_method_id: "pix",
         payer: {
-          email: "cliente@email.com",
+          email: "pix@cliente.com",
           first_name: nomeCliente || "Cliente"
         },
         external_reference: conversationId
