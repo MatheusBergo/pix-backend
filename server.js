@@ -55,10 +55,11 @@ app.post("/gerar-pix", async (req, res) => {
     console.log("Resposta Mercado Pago:")
     console.log(data)
 
+    // Se o Mercado Pago não retornar PIX, mostrar o erro real
     if (!data.point_of_interaction) {
-      return res.status(500).json({
-        error: "Mercado Pago não retornou QR Code",
-        data
+      return res.json({
+        erro: "Mercado Pago não retornou QR Code",
+        respostaMercadoPago: data
       })
     }
 
@@ -73,9 +74,9 @@ app.post("/gerar-pix", async (req, res) => {
     console.error("ERRO AO GERAR PIX")
     console.error(error)
 
-    res.status(500).json({
-      error: "Erro ao gerar PIX",
-      details: error.message
+    res.json({
+      erro: "Erro interno",
+      detalhes: error.message
     })
   }
 })
