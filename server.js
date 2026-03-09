@@ -55,18 +55,25 @@ app.post("/gerar-pix", async (req, res) => {
     console.log("Resposta Mercado Pago:")
     console.log(data)
 
-    // Se o Mercado Pago não retornar PIX, mostrar o erro real
     if (!data.point_of_interaction) {
       return res.json({
-        erro: "Mercado Pago não retornou QR Code",
-        respostaMercadoPago: data
+        mensagemPix: "Erro ao gerar Pix. Tente novamente."
       })
     }
 
+    const codigoPix =
+      data.point_of_interaction.transaction_data.qr_code
+
+    const mensagemPix = `💳 Pagamento via Pix
+
+Copie o código abaixo e cole no aplicativo do seu banco:
+
+${codigoPix}
+
+Após o pagamento o pedido será confirmado automaticamente.`
+
     res.json({
-      id: data.id,
-      qr_code: data.point_of_interaction.transaction_data.qr_code,
-      qr_code_base64: data.point_of_interaction.transaction_data.qr_code_base64
+      mensagemPix: mensagemPix
     })
 
   } catch (error) {
@@ -75,8 +82,7 @@ app.post("/gerar-pix", async (req, res) => {
     console.error(error)
 
     res.json({
-      erro: "Erro interno",
-      detalhes: error.message
+      mensagemPix: "Erro ao gerar Pix. Tente novamente."
     })
   }
 })
