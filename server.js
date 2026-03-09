@@ -39,7 +39,7 @@ app.post("/gerar-pix", async (req, res) => {
         "X-Idempotency-Key": idempotencyKey
       },
       body: JSON.stringify({
-        transaction_amount: parseFloat(valor),
+        transaction_amount: Number(parseFloat(valor).toFixed(2)),
         description: "Pedido via WhatsApp",
         payment_method_id: "pix",
         payer: {
