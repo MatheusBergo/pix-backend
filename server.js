@@ -8,14 +8,12 @@ app.use(express.json())
 const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN
 const BOTPRESS_TOKEN = process.env.BOTPRESS_TOKEN
 
-
 // ===============================
 // TESTE API
 // ===============================
 app.get("/test", (req, res) => {
   res.send("API funcionando")
 })
-
 
 // ===============================
 // GERAR PIX
@@ -42,8 +40,9 @@ app.post("/gerar-pix", async (req, res) => {
         transaction_amount: Number(parseFloat(valor).toFixed(2)),
         description: "Pedido via WhatsApp",
         payment_method_id: "pix",
+        notification_url: "https://pix-backend-eva7.onrender.com/webhook",
         payer: {
-          email: "pix@cliente.com",
+          email: "cliente@email.com",
           first_name: nomeCliente || "Cliente"
         },
         external_reference: conversationId
@@ -55,25 +54,23 @@ app.post("/gerar-pix", async (req, res) => {
     console.log("Resposta Mercado Pago:")
     console.log(data)
 
-    if (!data.point_of_interaction) {
-      return res.json({
-        mensagemPix: "Erro ao gerar Pix. Tente novamente."
-      })
-    }
+    const qrCode = data.point_of_interaction.transaction_data.qr_code
+    const linkPagamento = data.point_of_interaction.transaction_data.ticket_url
 
-    const codigoPix =
-      data.point_of_interaction.transaction_data.qr_code
-
-    const mensagemPix = `💳 Pagamento via Pix
+    const mensagemPix =
+`💳 Pagamento via Pix
 
 Copie o código abaixo e cole no aplicativo do seu banco:
 
-${codigoPix}
+${qrCode}
 
-Após o pagamento o pedido será confirmado automaticamente.`
+Ou pague pelo link:
+${linkPagamento}
+
+Assim que o pagamento for confirmado seu pedido será preparado 🍕🔥`
 
     res.json({
-      mensagemPix: mensagemPix
+      mensagemPix
     })
 
   } catch (error) {
@@ -130,7 +127,12 @@ app.post("/webhook", async (req, res) => {
           conversationId: payment.external_reference,
           payload: {
             type: "text",
-            text: "✅ Pix recebido com sucesso!\n\nObrigado pela confiança 🙏\nSeu pedido já está sendo preparado 🍕🔥"
+            text:
+`✅ Pagamento confirmado!
+
+Seu pedido já está sendo preparado 🍕🔥
+
+Tempo médio de entrega: 90 minutos.`
           }
         })
       })
@@ -152,8 +154,8 @@ app.post("/webhook", async (req, res) => {
 // ===============================
 // START SERVER
 // ===============================
-const PORT = process.env.PORT || 10000
+const PORT = process.env.PORT || 3000
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("Servidor rodando 🚀 na porta " + PORT)
+app.listen(PORT, () => {
+  console.log("Servidor rodando 🚀")
 })
