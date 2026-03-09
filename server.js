@@ -37,16 +37,15 @@ app.post("/gerar-pix", async (req, res) => {
         "X-Idempotency-Key": idempotencyKey
       },
       body: JSON.stringify({
-        transaction_amount: Number(parseFloat(valor).toFixed(2)),
-        description: "Pedido via WhatsApp",
-        payment_method_id: "pix",
-        notification_url: "https://pix-backend-eva7.onrender.com/webhook",
-        payer: {
-          email: "cliente@email.com",
-          first_name: nomeCliente || "Cliente"
-        },
-        external_reference: conversationId
-      })
+  conversationId: payment.external_reference,
+  payload: {
+    type: "text",
+    text: "✅ Pagamento confirmado!\n\nSeu pedido já está sendo preparado 🍕🔥"
+  },
+  conversation: {
+    pagamentoConfirmado: true
+  }
+})
     })
 
     const data = await response.json()
